@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 
-const StatisticLine = ({ name, count }) => <div> {name} {count} </div>
+const StatisticLine = ({ name, count, sign }) => <tr> <td>{name}</td> <td>{count}</td>  <td>{sign}</td> </tr>
 
-const Statistics = (props) => {
+const Statistics = ({allFeedbacks, good, neutral, bad }) => {
   console.log('Statistics')
+  console.log('allFeedbacks',allFeedbacks)
+  console.log('good',good)
+  console.log('neutral',neutral)
+  console.log('bad',bad)
 
-  if (props.allFeedbacks.length === 0) {
+  if (allFeedbacks.length === 0) {
     return (
       <div>
         No feedback given
@@ -13,33 +17,32 @@ const Statistics = (props) => {
     )
   }
 
-  const goodFeedbacksCount = props.allFeedbacks.filter(feedback => feedback === 'G').length;
-  console.log('goodFeedbacksCount', goodFeedbacksCount)
-  const neutralFeedbacksCount = props.allFeedbacks.filter(feedback => feedback === 'N').length;
-  console.log('neutralFeedbacksCount', neutralFeedbacksCount)
-  const badFeedbacksCount = props.allFeedbacks.filter(feedback => feedback === 'B').length;
-  console.log('badFeedbacksCount', badFeedbacksCount)
-// name, count
+  const totalFeedbacks = allFeedbacks.length;
+  const averageFeedbacks = (good - bad) / totalFeedbacks;
+  const positivePercentageFeedbacks = (good / totalFeedbacks) * 100;
+
   return (
     <div>
       <h1>statistics</h1>
-      <StatisticLine  name="good"  count={goodFeedbacksCount} /> 
-      <StatisticLine  name="neutral"  count={neutralFeedbacksCount} /> 
-      <StatisticLine  name="bad"  count={badFeedbacksCount} /> 
-      <div> all {props.allFeedbacks.length}</div> 
-      <div> average {(goodFeedbacksCount + (-1*badFeedbacksCount)) / props.allFeedbacks.length}</div> 
-      <div> positive {(goodFeedbacksCount / props.allFeedbacks.length)*100} %</div> 
+      <table>
+          <tbody>
+            <StatisticLine  name="good"       count={good}  sign=""  /> 
+            <StatisticLine  name="neutral"    count={neutral} sign=""/> 
+            <StatisticLine  name="bad"        count={bad} sign=""/> 
+            <StatisticLine  name="all"        count={totalFeedbacks} sign="" /> 
+            <StatisticLine  name="average"    count={averageFeedbacks} sign=""/> 
+            <StatisticLine  name="positive"   count={positivePercentageFeedbacks} sign="%"   /> 
+          </tbody>
+      </table>
     </div>
   )
 }
-
 
 const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>
     {text}
   </button>
 )
-
 
 const App = () => {
   // save clicks of each button to its own state
@@ -48,43 +51,42 @@ const App = () => {
   const [bad, setBad] = useState(0)
 
   const [allFeedbacks, setAll] = useState([])
-  const [total, setTotal] = useState(0)
 
-  const handleGoodClick = () => {
-    setAll(allFeedbacks.concat('G'))
-    console.log('good before', good)
-    const updatedGood = good + 1
-    setGood(updatedGood)
-    console.log('good after', good)
-    setTotal(updatedGood + neutral + bad) 
-  }
-
-  const handleNeutralClick = () => {
-    setAll(allFeedbacks.concat('N'))
-    console.log('neutral before', neutral)
-    const updatedNeutral = neutral + 1
-    setNeutral(updatedNeutral)
-    console.log('neutral after', neutral)
-    setTotal(good + updatedNeutral + bad) 
-  }
-
-
-  const handleBadClick = () => {
-    setAll(allFeedbacks.concat('B'))
-    console.log('bad before', bad)
-    const updatedBad = bad + 1
-    setBad(updatedBad)
-    console.log('bad after', bad)
-    setTotal(good + neutral + updatedBad) 
-  }
+  const handleFeedbackClick = (feedbackType) => {
+    console.log('handleFeedbackClick->feedbackType', feedbackType);
+    setAll([...allFeedbacks, feedbackType]);
+    switch (feedbackType) {
+      case 'good':
+        console.log('good before', good)
+        const updatedGood = good + 1
+        console.log('updatedGood', updatedGood)
+        setGood(updatedGood)
+        console.log('good after', good)
+        break;
+      case 'neutral':
+        console.log('neutral before', neutral)
+        const updatedNeutral = neutral + 1
+        setNeutral(updatedNeutral)
+        console.log('neutral after', neutral)
+        break;
+      case 'bad':
+        console.log('bad before', bad)
+        const updatedBad = bad + 1
+        setBad(updatedBad)
+        console.log('bad after', bad)
+        break;
+        default:
+          break;
+    }
+  };
 
   return (
     <div>
       <h1>give feedback</h1>
-      <Button handleClick={handleGoodClick} text='good' />
-      <Button handleClick={handleNeutralClick} text='neutral' />
-      <Button handleClick={handleBadClick} text='bad' />
-      <Statistics allFeedbacks={allFeedbacks} />
+      <Button handleClick={() => handleFeedbackClick('good')} text="Good" />
+      <Button handleClick={() => handleFeedbackClick('neutral')} text="Neutral" />
+      <Button handleClick={() => handleFeedbackClick('bad')} text="Bad" />
+      <Statistics allFeedbacks = {allFeedbacks} good={good} neutral={neutral} bad={bad} />
   </div>
   )
 }

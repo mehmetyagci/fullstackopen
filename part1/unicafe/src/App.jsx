@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 
-const StatisticLine = ({ name, count, sign }) => <tr> <td>{name}</td> <td>{count}</td>  <td>{sign}</td> </tr>
+const StatisticLine = ({ name, count, sign }) => <tr><td>{name}</td><td>{count}</td><td>{sign}</td></tr>
 
-const Statistics = ({allFeedbacks, good, neutral, bad }) => {
+const Statistics = ({ good, neutral, bad }) => {
   console.log('Statistics')
-  console.log('allFeedbacks',allFeedbacks)
   console.log('good',good)
   console.log('neutral',neutral)
   console.log('bad',bad)
 
-  if (allFeedbacks.length === 0) {
+  const totalFeedbacks = good + neutral + bad;
+
+  if (totalFeedbacks === 0) {
     return (
       <div>
         No feedback given
@@ -17,7 +18,6 @@ const Statistics = ({allFeedbacks, good, neutral, bad }) => {
     )
   }
 
-  const totalFeedbacks = allFeedbacks.length;
   const averageFeedbacks = (good - bad) / totalFeedbacks;
   const positivePercentageFeedbacks = (good / totalFeedbacks) * 100;
 
@@ -50,11 +50,8 @@ const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
 
-  const [allFeedbacks, setAll] = useState([])
-
   const handleFeedbackClick = (feedbackType) => {
     console.log('handleFeedbackClick->feedbackType', feedbackType);
-    setAll([...allFeedbacks, feedbackType]);
     switch (feedbackType) {
       case 'good':
         console.log('good before', good)
@@ -86,7 +83,7 @@ const App = () => {
       <Button handleClick={() => handleFeedbackClick('good')} text="Good" />
       <Button handleClick={() => handleFeedbackClick('neutral')} text="Neutral" />
       <Button handleClick={() => handleFeedbackClick('bad')} text="Bad" />
-      <Statistics allFeedbacks = {allFeedbacks} good={good} neutral={neutral} bad={bad} />
+      <Statistics good={good} neutral={neutral} bad={bad} />
   </div>
   )
 }

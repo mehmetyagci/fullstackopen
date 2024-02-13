@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+const StatisticLine = ({ name, count }) => <div> {name} {count} </div>
 
 const Statistics = (props) => {
   console.log('Statistics')
@@ -14,21 +15,19 @@ const Statistics = (props) => {
 
   const goodFeedbacksCount = props.allFeedbacks.filter(feedback => feedback === 'G').length;
   console.log('goodFeedbacksCount', goodFeedbacksCount)
-  const neutralFeedbacks = props.allFeedbacks.filter(feedback => feedback === 'N').length;
-  console.log('neutralFeedbacks', neutralFeedbacks)
-  const badFeedbacks = props.allFeedbacks.filter(feedback => feedback === 'B').length;
-  console.log('badFeedbacks', badFeedbacks)
-
-  
-
+  const neutralFeedbacksCount = props.allFeedbacks.filter(feedback => feedback === 'N').length;
+  console.log('neutralFeedbacksCount', neutralFeedbacksCount)
+  const badFeedbacksCount = props.allFeedbacks.filter(feedback => feedback === 'B').length;
+  console.log('badFeedbacksCount', badFeedbacksCount)
+// name, count
   return (
     <div>
       <h1>statistics</h1>
-      <div> good {goodFeedbacksCount}</div> 
-      <div> neutral {neutralFeedbacks}</div> 
-      <div> bad {badFeedbacks}</div> 
+      <StatisticLine  name="good"  count={goodFeedbacksCount} /> 
+      <StatisticLine  name="neutral"  count={neutralFeedbacksCount} /> 
+      <StatisticLine  name="bad"  count={badFeedbacksCount} /> 
       <div> all {props.allFeedbacks.length}</div> 
-      <div> average {(goodFeedbacksCount + (-1*badFeedbacks)) / props.allFeedbacks.length}</div> 
+      <div> average {(goodFeedbacksCount + (-1*badFeedbacksCount)) / props.allFeedbacks.length}</div> 
       <div> positive {(goodFeedbacksCount / props.allFeedbacks.length)*100} %</div> 
     </div>
   )

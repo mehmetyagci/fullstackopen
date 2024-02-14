@@ -3,7 +3,6 @@ import PersonForm from './components/PersonForm';
 import Filter from './components/Filter'
 import Person from './components/Person'
 
-
 const App = () => {
   console.log('App');
   const [persons, setPersons] = useState([

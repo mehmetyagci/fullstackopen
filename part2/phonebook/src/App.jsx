@@ -2,7 +2,8 @@ import { useState } from 'react'
 import Person from './components/Person'
 
 const App = () => {
-  const [persons, setPersons] = useState([{ name: 'Arto Hellas', phone: '111-222-333' }]) 
+  console.log('App');
+  const [persons, setPersons] = useState([{ id: 1, name: 'Arto Hellas', phone: '111-222-333' }]) 
   const [newName, setNewName] = useState('')
   const [newPhone, setNewPhone] = useState('')
 
@@ -19,18 +20,29 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    const existingPerson = persons.some(person => person.name === newName);
-    console.log('existingPerson', existingPerson)
-    if (existingPerson) {
-      alert(`${newName} is already added to phonebook`)
+    const existingPersonName = persons.some(person => person.name === newName);
+    console.log('existingPersonName', existingPersonName)
+    if (existingPersonName) {
+      alert(`${newName} name is already added to phonebook`)
       return;
     }
+
+  const existingPersonPhone = persons.some(person => person.phone === newPhone);
+    console.log('existingPersonPhone', existingPersonPhone)
+    if (existingPersonPhone) {
+      alert(`${newPhone} phone is already added to phonebook`)
+      return;
+    }
+
     console.log(`Adding ${newName} since it doesn't exist in the phonebook.`);
     const personObject = {
       name: newName,
+      phone: newPhone,
+      id: persons.length + 1,
     }
     setPersons(persons.concat(personObject))
     setNewName('')
+    setNewPhone('')
     console.log('button clicked', event.target)
   }
 
@@ -45,8 +57,8 @@ const App = () => {
       
       <h2>Numbers</h2>
       <ul>
-        {persons.map((person, index) => 
-          <Person key={index} person={person} />
+        {persons.map(person => 
+          <Person key={person.id} person={person} />
         )}
       </ul>
     </div>

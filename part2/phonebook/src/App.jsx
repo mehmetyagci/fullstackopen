@@ -18,6 +18,7 @@ const App = () => {
         setPersons(response.data)
       })
   }, [])
+  
 
   const handleNameChange = (event) => {
     console.log(event.target.value)

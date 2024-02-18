@@ -7,7 +7,7 @@ const Weather = ({ country }) => {
     const [weather, setWeather] = useState(null);
     const [error, setError] = useState(null);
 
-    const apiKey = "54e45662907323fb69fc5708d8bfc1f3";
+    const apiKey = "";
 
     useEffect(() => {
         const lat = country.latlng[0];

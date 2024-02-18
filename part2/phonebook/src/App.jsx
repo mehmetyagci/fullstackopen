@@ -6,12 +6,15 @@ import PersonForm from './components/PersonForm';
 import Filter from './components/Filter'
 import Person from './components/Person'
 
+import Notification from './components/Notification'
+
 const App = () => {
   console.log('App');
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newPhone, setNewPhone] = useState('')
   const [filter, setFilter] = useState('')
+  const [notification, setNotification]  = useState(null)
 
   useEffect(() => {
     personService
@@ -51,11 +54,12 @@ const App = () => {
           .update(existingPerson.id, updatedPerson)
             .then(returnedPerson => {
               setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson));
-                  setNewName('');
-                  setNewPhone('');
+              setNewName('');
+              setNewPhone('');
+              showNotification(`${newName}'s phone number was updated`, 'success');
           }).catch(error => {
             console.error('Error updating person:', error);
-            alert(`Error updating ${existingPerson.name}`);
+            showNotification(`Error updating ${existingPerson.name}`, 'error');
         });
        }
     } else  // insert
@@ -63,14 +67,14 @@ const App = () => {
       const existingPersonName = persons.some(person => person.name === newName);
       console.log('existingPersonName', existingPersonName)
       if (existingPersonName) {
-        alert(`${newName} name is already added to phonebook`)
+        setNotification(`${newName} name is already added to phonebook`,  'error');
         return;
       }
 
       const existingPersonPhone = persons.some(person => person.phone === newPhone);
       console.log('existingPersonPhone', existingPersonPhone)
       if (existingPersonPhone) {
-        alert(`${newPhone} phone is already added to phonebook`)
+        setNotification(`${newPhone} phone is already added to phonebook`, 'error');
         return;
       }
 
@@ -86,9 +90,10 @@ const App = () => {
             setPersons(persons.concat(returnedPerson))
             setNewName('')
             setNewPhone('')
+            showNotification(`${newPhone} phone is successfullt added to phonebook`, 'success' );
         }).catch(error => {
           console.error('Error adding person:', error);
-          alert(`Error adding ${newName}`);
+          showNotification(`Error adding ${newName} person. Details:${error}`, 'error');
       });
     }
     
@@ -106,6 +111,7 @@ const App = () => {
     // If the person doesn't exist, exit the function
     if (personIndex === -1) {
       console.log(`Person with ID ${id} not found in the list`);
+      showNotification(`Person with ID ${id} not found in the list`, 'error');
       return;
     }
   
@@ -114,6 +120,7 @@ const App = () => {
         .deletePerson(id)
         .then(() => {
           console.log(`Successfully deleted person with ID ${id} from the server`);
+          showNotification(`Successfully deleted person with ID ${id} from the server`, 'success');
           // Update the state to remove the deleted person
           setPersons(prevPersons => {
             const updatedPersons = [...prevPersons];
@@ -123,7 +130,8 @@ const App = () => {
       })
       .catch(error => {
         console.error('Error deleting person:', error);
-        alert(`Error deleting person with ID ${id} from the server`);
+        showNotification(`Information of ${personToDelete.name} has already been removed from server`, 'error');
+        setPersons(persons.filter(p => p.id !== id))
       });
   }
 
@@ -139,9 +147,7 @@ const App = () => {
           console.log('returnedPerson', returnedPerson)
       })
       .catch(error => {
-        alert(
-          `the person '${person.name}' was not exist in server`
-        )
+        showNotification(`the person '${person.name}' was not exist in server`, 'error');
       })
   }
 
@@ -149,9 +155,17 @@ const App = () => {
   ? persons
   : persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
 
+  const showNotification = (message, notificationType) => {
+    setNotification({ message, notificationType });
+    setTimeout(() => {
+      setNotification(null);
+    }, 2500);
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification}  />
       <Filter filter={filter} setFilter={setFilter} />
       <h3>add a new</h3>
       <PersonForm 

@@ -11,6 +11,7 @@ import './App.css'
 
 const App = () => {
   console.log('App');
+
   const [countries, setCountries] = useState([])
   const [filter, setFilter] = useState('')
   const [notification, setNotification]  = useState(null)
@@ -34,32 +35,31 @@ const App = () => {
   ? countries
   : countries.filter(country => country.name.common.toLowerCase().includes(filter.toLowerCase()))
   console.log('countriesFiltered', countriesFiltered)
-
-  if(countriesFiltered != undefined && countriesFiltered.length > 0) {
-     console.log(countriesFiltered[0].name.common)  
-  }
+ 
+  const renderFilteredContent = (countriesFiltered) => {
+    if (countriesFiltered.length > 10) {
+      return <p>Too many matches, specify another filter</p>;
+    } else if (countriesFiltered.length === 1) {
+      return <CountryDetail key={countriesFiltered[0].name.common} country={countriesFiltered[0]} />;
+    } else {
+      return (
+        <div>
+          {countriesFiltered.map(country =>
+            <Country key={country.name.common} country={country} />
+          )}
+        </div>
+      );
+    }
+  };
 
   return (
     <div>
       <Notification notification={notification}  />
       <Filter filter={filter} setFilter={setFilter} />
-      {countriesFiltered.length > 10 ? (
-        <p>Too many matches, specify another filter</p>
-      ) : countriesFiltered.length === 1 ? (
-        <CountryDetail
-              key={countriesFiltered[0].name.common}
-              country={countriesFiltered[0]}
-            />
-      ) : (
-        <div>
-          {countriesFiltered.map(country =>
-            <Country
-              key={country.name.common}
-              country={country}
-            />
-          )}
-        </div>
+      {filter !== '' && (
+        renderFilteredContent(countriesFiltered)
       )}
+     
     </div>
   )
 }

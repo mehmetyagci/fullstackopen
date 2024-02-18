@@ -1,34 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
+
+import countriesService from './services/countries';
+
+import Country from       './components/Country'
+import CountryDetail from './components/CountryDetail'
+import Filter from        './components/Filter'
+import Notification from  './components/Notification'
+
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  console.log('App');
+  const [countries, setCountries] = useState([])
+  const [filter, setFilter] = useState('')
+  const [notification, setNotification]  = useState(null)
+
+  const showNotification = (message, notificationType) => {
+    setNotification({ message, notificationType });
+    setTimeout(() => {
+      setNotification(null);
+    }, 2500);
+  };
+  
+  useEffect(() => {
+    countriesService
+      .getAll()
+      .then(initialCountries => {
+        setCountries(initialCountries)
+      })
+  }, [])
+
+  const countriesFiltered = filter === ''
+  ? countries
+  : countries.filter(country => country.name.common.toLowerCase().includes(filter.toLowerCase()))
+  console.log('countriesFiltered', countriesFiltered)
+
+  if(countriesFiltered != undefined && countriesFiltered.length > 0) {
+     console.log(countriesFiltered[0].name.common)  
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <Notification notification={notification}  />
+      <Filter filter={filter} setFilter={setFilter} />
+      {countriesFiltered.length > 10 ? (
+        <p>Too many matches, specify another filter</p>
+      ) : countriesFiltered.length === 1 ? (
+        <CountryDetail
+              key={countriesFiltered[0].name.common}
+              country={countriesFiltered[0]}
+            />
+      ) : (
+        <div>
+          {countriesFiltered.map(country =>
+            <Country
+              key={country.name.common}
+              country={country}
+            />
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 

@@ -10,19 +10,17 @@ const Weather = ({ country }) => {
     const apiKey = "54e45662907323fb69fc5708d8bfc1f3";
 
     useEffect(() => {
-        const fetchWeather = async () => {
-            try {
-                const lat = country.latlng[0];
-                const lon = country.latlng[1];
-                const initialWeather = await weatherService.get(lat, lon, apiKey);
+        const lat = country.latlng[0];
+        const lon = country.latlng[1];
+        
+        weatherService.get(lat, lon, apiKey)
+            .then(initialWeather => {
                 setWeather(initialWeather);
                 setError(null); // Clear any previous errors
-            } catch (error) {
+            })
+            .catch(error => {
                 setError(`Failed to fetch weather data: ${error.message}`);
-            }
-        };
-
-        fetchWeather(); // Call the fetchWeather function
+            });
     }, [country, apiKey]); // Add country and apiKey to the dependency array
 
     if (!weather) {

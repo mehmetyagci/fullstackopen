@@ -49,3 +49,9 @@ Full stack developer's oath
     If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
     When I ask for help in the course Discord or Telegram channel or elsewhere I formulate my questions properly, see here how to ask for help
 
+Nor hardcode the api-key to your source code. Instead use an environment variable to save the key.
+    export VITE_SOME_KEY=54l41n3n4v41m34rv0 && npm run dev // For Linux/macOS Bash
+    ($env:VITE_SOME_KEY="54l41n3n4v41m34rv0") -and (npm run dev) // For Windows PowerShell
+    set "VITE_SOME_KEY=54l41n3n4v41m34rv0" && npm run dev // For Windows cmd.exe
+
+

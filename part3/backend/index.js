@@ -1,8 +1,6 @@
 const express = require('express')
 const app = express()
 
-app.use(express.json())
-
 let persons = [
     {
         "id": 1,
@@ -25,6 +23,8 @@ let persons = [
         "number": "39-23-6423122"
     }
 ]
+
+app.use(express.json())
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
@@ -83,7 +83,7 @@ const generateId = () => {
         error: 'name must be unique. details: name already exists in the phonebook' 
       })
     }
-    
+
     const person = {
       name: body.name,
       number: body.number,

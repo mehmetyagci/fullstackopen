@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan');
 
 let persons = [
     {
@@ -23,20 +24,23 @@ let persons = [
         "number": "39-23-6423122"
     }
 ]
-var morgan = require('morgan');
-var requestLogger =  morgan('tiny');
-// var  requestLogger = morgan(function (tokens, req, res) {
-//   return [
-//     tokens.method(req, res),
-//     tokens.url(req, res),
-//     tokens.status(req, res),
-//     tokens.res(req, res, 'content-length'), '-',
-//     tokens['response-time'](req, res), 'ms'
-//   ].join(' ')
-// })
 
-app.use(express.json())
+// Define a custom token for Morgan to log request data for POST requests
+morgan.token('postData', (req,  res) => {
+  if (req.method === 'POST') {
+      console.log('req.body', req.body)
+      const postData = JSON.stringify(req.body);
+      console.log('postData', postData)
+      return postData;
+  }
+  return '';
+});
+
+// Use the custom token in Morgan
+const requestLogger = morgan(':method :url :status :res[content-length] - :response-time ms - :postData');
 app.use(requestLogger)
+app.use(express.json())
+
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')

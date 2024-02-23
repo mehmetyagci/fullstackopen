@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const morgan = require('morgan');
 
 let persons = [
     {
@@ -25,6 +24,10 @@ let persons = [
     }
 ]
 
+app.use(express.static('dist'))
+
+const morgan = require('morgan');
+
 // Define a custom token for Morgan to log request data for POST requests
 morgan.token('postData', (req,  res) => {
   if (req.method === 'POST') {
@@ -38,9 +41,17 @@ morgan.token('postData', (req,  res) => {
 
 // Use the custom token in Morgan
 const requestLogger = morgan(':method :url :status :res[content-length] - :response-time ms - :postData');
-app.use(requestLogger)
+
+const cors = require('cors')
+app.use(cors())
+
 app.use(express.json())
 
+app.use(requestLogger)
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
@@ -111,7 +122,9 @@ const generateId = () => {
     response.json(person)
   })
 
-const PORT = 3001
+app.use(unknownEndpoint)
+
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })

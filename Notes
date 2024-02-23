@@ -54,4 +54,9 @@ Nor hardcode the api-key to your source code. Instead use an environment variabl
     ($env:VITE_SOME_KEY="54l41n3n4v41m34rv0") -and (npm run dev) // For Windows PowerShell
     set "VITE_SOME_KEY=54l41n3n4v41m34rv0" && npm run dev // For Windows cmd.exe
 
+node --inspect index.js
+nodemon --inspect index.js
+
+
+
 

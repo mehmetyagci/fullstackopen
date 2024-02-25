@@ -70,5 +70,3 @@ if(name && number) {
 //   console.log(`added ${result.name} number ${result.number} to phonebook`)
 //   mongoose.connection.close()
 // })
-
- 

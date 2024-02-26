@@ -12,7 +12,7 @@ const App = () => {
   console.log('App');
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
-  const [newPhone, setNewPhone] = useState('')
+  const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [notification, setNotification]  = useState(null)
 
@@ -30,9 +30,9 @@ const App = () => {
     setNewName(event.target.value)
   }
 
-  const handlePhoneChange = (event) => {
+  const handleNumberChange = (event) => {
     console.log(event.target.value)
-    setNewPhone(event.target.value)
+    setNewNumber(event.target.value)
   }
 
   const addPerson = (event) => {
@@ -48,14 +48,14 @@ const App = () => {
         console.log(`Updating ${newName}' phone.`);
         const updatedPerson = {
           ...existingPerson,
-          phone: newPhone,
+          number: newNumber,
         };
         personService
           .update(existingPerson.id, updatedPerson)
             .then(returnedPerson => {
               setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson));
               setNewName('');
-              setNewPhone('');
+              setNewNumber('');
               showNotification(`${newName}'s phone number was updated`, 'success');
           }).catch(error => {
             console.error('Error updating person:', error);
@@ -71,17 +71,17 @@ const App = () => {
         return;
       }
 
-      const existingPersonPhone = persons.some(person => person.phone === newPhone);
+      const existingPersonPhone = persons.some(person => person.number === newNumber);
       console.log('existingPersonPhone', existingPersonPhone)
       if (existingPersonPhone) {
-        setNotification(`${newPhone} phone is already added to phonebook`, 'error');
+        setNotification(`${newNumber} phone is already added to phonebook`, 'error');
         return;
       }
 
       console.log(`Adding ${newName} since it doesn't exist in the phonebook.`);
       const personObject = {
         name: newName,
-        phone: newPhone,
+        number: newNumber,
         id: (persons.length + 1).toString(),
       }
       personService
@@ -89,8 +89,8 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.concat(returnedPerson))
             setNewName('')
-            setNewPhone('')
-            showNotification(`${newPhone} phone is successfullt added to phonebook`, 'success' );
+            setNewNumber('')
+            showNotification(`${newNumber} phone is successfullt added to phonebook`, 'success' );
         }).catch(error => {
           console.error('Error adding person:', error);
           showNotification(`Error adding ${newName} person. Details:${error}`, 'error');
@@ -172,8 +172,8 @@ const App = () => {
       addPerson={addPerson} 
       newName={newName} 
       handleNameChange={handleNameChange} 
-      newPhone={newPhone} 
-      handlePhoneChange={handlePhoneChange} />
+      newNumber={newNumber} 
+      handleNumberChange={handleNumberChange} />
       <h3>Numbers</h3>
       <ul>
         {personsFiltered.map(person => 

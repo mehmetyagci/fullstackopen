@@ -56,8 +56,8 @@ app.post('/api/persons', (request, response) => {
   const body = request.body
 
   console.log('body.name', body.name)
-  console.log('body.phone', body.phone)
-  if (!body.name || !body.phone) {
+  console.log('body.number', body.number)
+  if (!body.name || !body.number) {
     return response.status(400).json({ error: 'name or number missing' })
   }
 
@@ -71,7 +71,7 @@ app.post('/api/persons', (request, response) => {
 
     const phonebook = new Phonebook({
       name: body.name,
-      number: body.phone,
+      number: body.number,
     })
   
     phonebook.save().then(savedPhonebook => {
@@ -117,7 +117,8 @@ app.put('/api/persons/:id', (request, response, next) => {
 
   const phonebook =  {
     name: body.name,
-    number: body.phone,
+    number: body.number,
+    id: request.params.id,
   }
   console.log('phonebook', phonebook)
 

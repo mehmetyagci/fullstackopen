@@ -1,13 +1,11 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan');
 require('dotenv').config()
 
 const Phonebook = require('./models/phonebook')
 
-let phonebooks = []
-
 app.use(express.static('dist'))
-const morgan = require('morgan');
 
 // Define a custom token for Morgan to log request data for POST requests
 morgan.token('postData', (req,  res) => {
@@ -19,15 +17,22 @@ morgan.token('postData', (req,  res) => {
   }
   return '';
 });
+const requestLogger = morgan(':method :url :status :res[content-length] - :response-time ms - :postData'); // Use the custom token in Morgan
 
-// Use the custom token in Morgan
-const requestLogger = morgan(':method :url :status :res[content-length] - :response-time ms - :postData');
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
 
 const cors = require('cors')
+
 app.use(cors())
-
 app.use(express.json())
-
 app.use(requestLogger)
 
 const unknownEndpoint = (request, response) => {
@@ -35,14 +40,8 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.get('/', (request, response) => {
-    console.log('index.js -> GET /')
-    response.send('<h1>Hello World!</h1>')
-})
-
-app.get('/api/info', (request, response) => {
-    console.log('index.js -> GET /api/info')
-    const info = `Phonebook has info for ${phonebooks.length} people <br/> ${new Date()}`
-    response.send(info)
+  console.log('index.js -> GET /')
+  response.send('<h1>Hello World!</h1>')
 })
 
 app.get('/api/persons', (request, response) => {
@@ -52,52 +51,17 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  console.log('index.js -> GET /api/persons/:id')
-  console.log('request.params.id', request.params.id)
-    const id = Number(request.params.id)
-    const phonebook = phonebooks.find(p => p.id === id)
-    if (phonebook) {
-      response.json(phonebooks)
-    } else {
-      console.log('x')
-      response.status(404).end()
-    }
-  })
+app.post('/api/persons', (request, response) => {
+  console.log('index.js -> POST /api/persons')
+  const body = request.body
 
-app.delete('/api/persons/:id', (request, response) => {
-    console.log('index.js -> DELETE /api/persons/:id')
-    console.log('request.params.id', request.params.id)
-    const id = Number(request.params.id)
-    persons = persons.filter(p => p.id !== id)
-  
-    response.status(204).end()
-})
+  console.log('body.name', body.name)
+  console.log('body.phone', body.phone)
+  if (!body.name || !body.phone) {
+    return response.status(400).json({ error: 'name or number missing' })
+  }
 
-// const generateId = () => {
-//     console.log('generateId')
-//     const maxId = phonebooks.length > 0
-//       ? Math.max(...phonebooks.map(p => p.id))
-//       : 0
-//     return maxId + 1
-//   }
-  
-  app.post('/api/persons', (request, response) => {
-    console.log('index.js -> POST /api/persons')
-    //  console.log('request', request)
-    //  console.log('request.body', request.body)
-    const body = request.body
-    //console.log('body', body)
-
-    console.log('body.name', body.name)
-    console.log('body.phone', body.phone)
-    if (!body.name || !body.phone) {
-      return response.status(400).json({ 
-        error: 'name or number missing' 
-      })
-    }
-
-    // const exists = phonebooks.find(p => p.name === body.name)  
+   // const exists = phonebooks.find(p => p.name === body.name)  
     // console.log('exists', exists) 
     // if (exists) {
     //   return response.status(400).json({
@@ -108,7 +72,6 @@ app.delete('/api/persons/:id', (request, response) => {
     const phonebook = new Phonebook({
       name: body.name,
       number: body.phone,
-      //id: generateId(),
     })
   
     phonebook.save().then(savedPhonebook => {
@@ -117,9 +80,60 @@ app.delete('/api/persons/:id', (request, response) => {
     })
   })
 
-app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+  app.get('/api/persons/:id', (request, response,next) => {
+    console.log('index.js -> GET /api/persons/:id')
+    console.log('request.params.id', request.params.id)
+    Phonebook.findById(request.params.id)
+      .then(phonebook => {
+        if (phonebook) {
+          response.json(phonebook);
+        } else {
+          console.log('Person not found')
+          response.status(404).end()
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        next(error)
+      })
+  })
+  
+
+app.delete('/api/persons/:id', (request, response,next) => {
+    console.log('index.js -> DELETE /api/persons/:id')
+    console.log('request.params.id', request.params.id)
+    Phonebook.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error)) 
+}) 
+
+app.put('/api/persons/:id', (request, response, next) => {
+  console.log('index.js -> PUT /api/persons/:id')
+  console.log('request.params.id', request.params.id)
+  const body = request.body
+
+  const phonebook =  {
+    name: body.name,
+    number: body.phone,
+  }
+  console.log('phonebook', phonebook)
+
+  Phonebook.findByIdAndUpdate(request.params.id, phonebook, { new: true })
+    .then(updatedPhonebook => {
+      response.json(updatedPhonebook)
+    })
+    .catch(error => next(error))
+})
+
+app.use(unknownEndpoint)
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+// handler of requests with result to errors
+app.use(errorHandler)
+
+const PORT = process.env.PORT 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })

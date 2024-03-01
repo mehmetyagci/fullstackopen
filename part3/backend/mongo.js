@@ -37,24 +37,24 @@ const Phonebook = mongoose.model('Phonebook', phonebookSchema)
 // })
 
 if(name && number) {
-    console.log('save phonebook entry')
-//   phonebook.save().then(result => {
-//     console.log(`added ${name} number ${number} to phonebook`)
-//     mongoose.connection.close()
-//   })
+  console.log('save phonebook entry')
+  //   phonebook.save().then(result => {
+  //     console.log(`added ${name} number ${number} to phonebook`)
+  //     mongoose.connection.close()
+  //   })
 
   Phonebook.create({
-  name: name,
-  number: number
-}).then(result => {
-  console.log(`added ${result.name} number ${result.number} to phonebook`)
-  mongoose.connection.close()
-})
+    name: name,
+    number: number
+  }).then(result => {
+    console.log(`added ${result.name} number ${result.number} to phonebook`)
+    mongoose.connection.close()
+  })
 
 } else {
-    console.log('return phonebook list')
-    
-    Phonebook.find({}).then(result => {
+  console.log('return phonebook list')
+
+  Phonebook.find({}).then(result => {
     result.forEach(phone => {
       console.log(phone)
     })

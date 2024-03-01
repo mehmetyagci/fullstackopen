@@ -59,7 +59,7 @@ const App = () => {
               showNotification(`${newName}'s phone number was updated`, 'success');
           }).catch(error => {
             console.error('Error updating person:', error);
-            showNotification(`Error updating ${existingPerson.name}`, 'error');
+            showNotification(`Error updating ${existingPerson.name} person. Details:${error.response.data.error}`, 'error');
         });
        }
     } else  // insert
@@ -92,8 +92,9 @@ const App = () => {
             setNewNumber('')
             showNotification(`${newNumber} phone is successfullt added to phonebook`, 'success' );
         }).catch(error => {
-          console.error('Error adding person:', error);
-          showNotification(`Error adding ${newName} person. Details:${error}`, 'error');
+          //console.error('Error adding person:', error);
+          console.log(error.response.data.error)
+          showNotification(`Error adding ${newName} person. Details:${error.response.data.error}`, 'error');
       });
     }
     

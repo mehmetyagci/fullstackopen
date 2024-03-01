@@ -24,7 +24,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
@@ -51,15 +53,15 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.post('/api/persons', (request, response) => {
-  console.log('index.js -> POST /api/persons')
+app.post('/api/persons', (request, response, next) => {
+  console.log('part3->backend->index.js -> POST /api/persons')
   const body = request.body
 
-  console.log('body.name', body.name)
-  console.log('body.number', body.number)
-  if (!body.name || !body.number) {
-    return response.status(400).json({ error: 'name or number missing' })
-  }
+  // console.log('body.name', body.name)
+  // console.log('body.number', body.number)
+  // if (!body.name || !body.number) {
+  //   return response.status(400).json({ error: 'name or number missing' })
+  // }
 
    // const exists = phonebooks.find(p => p.name === body.name)  
     // console.log('exists', exists) 
@@ -74,9 +76,14 @@ app.post('/api/persons', (request, response) => {
       number: body.number,
     })
   
-    phonebook.save().then(savedPhonebook => {
-      console.log('savedPhonebook', savedPhonebook)
-      response.json(savedPhonebook)
+    phonebook.save()
+      .then(savedPhonebook => {
+        console.log('savedPhonebook', savedPhonebook)
+        response.json(savedPhonebook)
+    })
+    .catch(error => {
+      console.error('part3->backend->index.js, Error while saving phonebook:', error);
+      next(error)
     })
   })
 
@@ -113,16 +120,13 @@ app.delete('/api/persons/:id', (request, response,next) => {
 app.put('/api/persons/:id', (request, response, next) => {
   console.log('index.js -> PUT /api/persons/:id')
   console.log('request.params.id', request.params.id)
-  const body = request.body
+  const {name, number } = request.body
 
-  const phonebook =  {
-    name: body.name,
-    number: body.number,
-    id: request.params.id,
-  }
-  console.log('phonebook', phonebook)
-
-  Phonebook.findByIdAndUpdate(request.params.id, phonebook, { new: true })
+  Phonebook.findByIdAndUpdate(
+    request.params.id, 
+    { name, number }, 
+    { new: true, runValidators: true, context: 'query' }
+    )
     .then(updatedPhonebook => {
       response.json(updatedPhonebook)
     })

@@ -22,8 +22,18 @@ const get = (id) => {
 // }
 
 const create = newObject => {
-  const request = axios.post(baseUrl, newObject)
-  return request.then(response => response.data)
+  console.log('Creating new person:', newObject);
+  // const request = axios.post(baseUrl, newObject)
+  // return request.then(response => response.data)
+  return axios.post(baseUrl, newObject)
+  .then(response => {
+    console.log('Created new person:', response.data);
+    return response.data;
+  })
+  .catch(error => {
+    console.error('Error creating new person:', error);
+    throw error; // Throw the error to be handled by the caller
+  });
 }
 
 const update = (id, newObject) => {

@@ -58,7 +58,7 @@ node --inspect index.js
 nodemon --inspect index.js
 
 A true full stack developer's oath
-    It is again time for the exercises. The complexity of our app has now taken another step since besides frontend and backend we also have a database. There are indeed really many potential sources of error.
+    Making tests brings yet another layer of challenge to programming. We have to update our full stack developer oath to remind you that systematicity is also key when developing tests.
 
     So we should once more extend our oath:
 
@@ -66,13 +66,46 @@ A true full stack developer's oath
 
     I will have my browser developer console open all the time
     I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
-    I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+    I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved as I expect
     I will keep an eye on the database: does the backend save data there in the right format
-    I progress with small steps
-    I will write lots of console.log statements to make sure I understand how the code behaves and to help pinpoint problems
-    If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
+    I will progress in small steps
+    I will write lots of console.log statements to make sure I understand how the code and the tests behave and to help pinpoint problems
+    If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything is still working
+    If a test does not pass, I make sure that the tested functionality for sure works in the application
     When I ask for help in the course Discord or Telegram channel or elsewhere I formulate my questions properly, see here how to ask for help
 
 
 npm run lint
 
+npm test -- --test-only
+npm test -- tests/note_api.test.js
+npm test -- --test-name-pattern="the first note is about HTTP methods"
+npm run test -- --test-name-pattern="notes"
+
+
+npm install express-async-errors
+    The 'magic' of the library allows us to eliminate the try-catch blocks completely. For example the route for deleting a note
+
+    notesRouter.delete('/:id', async (request, response, next) => {
+    try {
+        await Note.findByIdAndDelete(request.params.id)
+        response.status(204).end()
+    } catch (exception) {
+        next(exception)
+    }
+    })copy
+    becomes
+
+    notesRouter.delete('/:id', async (request, response) => {
+    await Note.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+    })copy
+    Because of the library, we do not need the next(exception) call anymore. The library handles everything under the hood. If an exception occurs in an async route, the execution is automatically passed to the error-handling middleware.
+
+
+supertest
+    Let's use the supertest package to help us write our tests for testing the API.
+
+    We will install the package as a development dependency:
+
+    npm install --save-dev supertest

@@ -109,3 +109,12 @@ supertest
     We will install the package as a development dependency:
 
     npm install --save-dev supertest
+
+
+npm install bcrypt
+
+
+Part 4 
+    Token authentication
+        npm install jsonwebtoken
+        

@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const helper = require('./test_helper')
 
@@ -42,22 +43,27 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('addition of a new blog', () => {
-    test('a valid blog can be added ', async () => {
+    test.only('a valid blog can be added with a valid token', async () => {
       const newBlog = {
-        title: 'title1',
-        author: 'author1',
-        url: 'url1',
-        likes: 1
+        title: 'title5',
+        author: 'author5',
+        url: 'url5',
+        likes: 5
       }
+
+      const user = await User.findOne({}) // Assuming there's at least one user in the database
+      console.log('user', user)
+      const token = jwt.sign({ id: user._id }, process.env.SECRET)
+      console.log('token', token)
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
       const response = await api.get('/api/blogs')
-
       const titles = response.body.map(blog => blog.title)
       console.log('titles', titles)
 
@@ -66,7 +72,22 @@ describe('when there is initially some blogs saved', () => {
       console.log('response.body.length', response.body.length)
       console.log('helper.initialBlogs.length', helper.initialBlogs.length)
 
-      assert(titles.includes('title1'))
+      assert(titles.includes('title5'))
+    })
+
+    test('adding a blog fails with status code 401 if token is not provided', async () => {
+      const newBlog = {
+        title: 'Test Blog',
+        author: 'Test Author',
+        url: 'http://test.com',
+        likes: 10,
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
     })
 
     test('if the likes property is missing from the request, it will default to the value 0.', async () => {
@@ -135,7 +156,7 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('updating of a blog', () => {
-    test.only('succeeds with changed likes if id is valid', async () => {
+    test('succeeds with changed likes if id is valid', async () => {
       const blogsAtStart = await helper.blogsInDb()
       let blogToUpdate = blogsAtStart[0]
       const initialLikes = blogToUpdate.likes

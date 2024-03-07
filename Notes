@@ -80,6 +80,7 @@ npm run lint
 npm test -- --test-only
 npm test -- tests/note_api.test.js
 npm test -- --test-name-pattern="the first note is about HTTP methods"
+npm test -- --test-name-pattern="a valid blog can be added with a valid token"
 npm run test -- --test-name-pattern="notes"
 
 

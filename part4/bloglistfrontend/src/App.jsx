@@ -57,9 +57,6 @@ const App = () => {
 
     console.log('addBlog button clicked', event.target)
 
-    const existingBlog = blogs.find(blog => blog.url === newUrl);
-    console.log('existingBlog:', existingBlog)
-
     const existingBlogTitle = blogs.some(blog => blog.title === newTitle);
     console.log('existingBlogTitle', existingBlogTitle)
     if (existingBlogTitle) {
@@ -69,7 +66,7 @@ const App = () => {
 
     const existingBlogUrl = blogs.some(blog => blog.url === newUrl);
     console.log('existingBlogUrl', existingBlogUrl)
-    if (existingBlogTitle) {
+    if (existingBlogUrl) {
       showNotification(`${newUrl} URL is already added to blog list`, 'error');
       return;
     }

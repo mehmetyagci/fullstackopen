@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 
+import Blog from "./components/Blog";
+import BlogForm from "./components/BlogForm";
+import Footer from './components/Footer'
+import Notification from "./components/Notification";
+
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
-import BlogForm from "./components/BlogForm";
-import Blog from "./components/Blog";
-import Notification from "./components/Notification";
-
 const App = () => {
   console.log("App");
+
   const [blogs, setBlogs] = useState([]);
 
   const [newTitle, setNewTitle] = useState("");
@@ -33,10 +35,12 @@ const App = () => {
 
   useEffect(() => {
     console.log("useEffect2 running");
-    blogService.getAll().then((blogs) => {
-      setBlogs(blogs);
-    });
-  }, []);
+    if(user) {
+      blogService.getAll().then((blogs) => {
+        setBlogs(blogs);
+      });
+    }
+  }, [user]);
 
   const handleTitleChange = (event) => {
     console.log(event.target.value);
@@ -138,7 +142,7 @@ const App = () => {
 
   const loginForm = () => (
     <div>
-      <h2>log in to application</h2>
+      <h2>Log in to application</h2>
       <Notification message={notification.message} type={notification.type} />
       <form onSubmit={handleLogin}>
         <div>
@@ -161,6 +165,7 @@ const App = () => {
         </div>
         <button type="submit">login</button>
       </form>
+      <Footer />
     </div>
   );
 
@@ -190,6 +195,7 @@ const App = () => {
           <Blog key={blog.id} blog={blog} />
         ))}
       </div>
+      <Footer />
     </div>
   );
 };

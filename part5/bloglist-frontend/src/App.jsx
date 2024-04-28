@@ -1,152 +1,152 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react'
 
-import Blog from "./components/Blog";
-import Notification from "./components/Notification";
-import Footer from "./components/Footer";
+import Blog from './components/Blog'
+import Notification from './components/Notification'
+import Footer from './components/Footer'
 
-import blogService from "./services/blogs";
-import loginService from "./services/login";
+import blogService from './services/blogs'
+import loginService from './services/login'
 
-import LoginForm from "./components/LoginForm";
-import Togglable from "./components/Togglable";
-import BlogForm from "./components/BlogForm";
+import LoginForm from './components/LoginForm'
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
-  console.log("App");
+  console.log('App')
 
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, setBlogs] = useState([])
 
-  const [notification, setNotification] = useState({ message: "", type: "" });
+  const [notification, setNotification] = useState({ message: '', type: '' })
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
 
-  const [loginVisible, setLoginVisible] = useState(false);
+  const [loginVisible, setLoginVisible] = useState(false)
 
-  const blogFormRef = useRef();
+  const blogFormRef = useRef()
 
   useEffect(() => {
-    console.log("useEffect1 running");
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
+    console.log('useEffect1 running')
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    console.log("useEffect2 running");
+    console.log('useEffect2 running')
     if (user) {
       blogService.getAll().then((blogs) => {
-        blogs.sort((a, b) => b.likes - a.likes);
-        setBlogs(blogs);
-      });
+        blogs.sort((a, b) => b.likes - a.likes)
+        setBlogs(blogs)
+      })
     }
-  }, [user]);
+  }, [user])
 
   const handleLikeOf = (id) => {
-    console.log("handleLikeOf", id);
-    const blog = blogs.find((b) => b.id === id);
+    console.log('handleLikeOf', id)
+    const blog = blogs.find((b) => b.id === id)
     //console.log("blog", blog);
     const changedBlog = {
       ...blog,
       likes: blog.likes + 1,
       //user: { ...blog.user },
-    };
-    console.log("handleLikeOf->changedBlog", changedBlog);
+    }
+    console.log('handleLikeOf->changedBlog', changedBlog)
 
     blogService
       .update(id, changedBlog)
       .then((returnedBlog) => {
-        console.log("returnedBlog:", returnedBlog);
-        setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)));
+        console.log('returnedBlog:', returnedBlog)
+        setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)))
 
         showNotification(
           `${blog.title} ${blog.url} blog is successfully updated`,
-          "success"
-        );
+          'success'
+        )
       })
       .catch((error) => {
         showNotification(
           `Error updating ${blog.title} blog. Details:${error}`,
-          "error"
-        );
-      });
-  };
+          'error'
+        )
+      })
+  }
 
   const handleDeleteOf = (id) => {
-    console.log("handleDeleteOf", id);
-    const blog = blogs.find((b) => b.id === id);
+    console.log('handleDeleteOf', id)
+    const blog = blogs.find((b) => b.id === id)
     if (!blog) {
-      showNotification(`Blog with id ${id} not found`, "error");
-      return;
+      showNotification(`Blog with id ${id} not found`, 'error')
+      return
     }
 
     blogService
       .remove(id)
       .then(() => {
-        setBlogs(blogs.filter((blog) => blog.id !== id));
+        setBlogs(blogs.filter((blog) => blog.id !== id))
 
         showNotification(
           `${blog.title} ${blog.url} blog is successfully removed`,
-          "success"
-        );
+          'success'
+        )
       })
       .catch((error) => {
         showNotification(
           `Error removing ${blog.title} blog. Details:${error}`,
-          "error"
-        );
-      });
-  };
+          'error'
+        )
+      })
+  }
 
   const addBlog = (blogObject) => {
-    console.log("app->addBlog run", blogObject);
+    console.log('app->addBlog run', blogObject)
     blogService
       .create(blogObject)
       .then((returnedBlog) => {
-        console.log('returnedBlog:', returnedBlog);
-        blogFormRef.current.toggleVisibility();
-        setBlogs(blogs.concat(returnedBlog));
+        console.log('returnedBlog:', returnedBlog)
+        blogFormRef.current.toggleVisibility()
+        setBlogs(blogs.concat(returnedBlog))
         showNotification(
           `${blogObject.url} URL is successfully added to blog list`,
-          "success"
-        );
+          'success'
+        )
       })
       .catch((error) => {
-        console.error("Error adding blog:", error);
+        console.error('Error adding blog:', error)
         showNotification(
           `Error adding ${blogObject.url} blog. Details:${error}`,
-          "error"
-        );
-      });
-  };
+          'error'
+        )
+      })
+  }
 
   const handleLogin = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
     try {
       const user = await loginService.login({
         username,
         password,
-      });
-      console.log("user", user);
-      window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(user));
-      blogService.setToken(user.token);
-      setUser(user);
-      setUsername("");
-      setPassword("");
+      })
+      console.log('user', user)
+      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
+      blogService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
     } catch (exception) {
-      showNotification("wrong username or password", "error");
+      showNotification('wrong username or password', 'error')
     }
-  };
+  }
 
   const loginForm = () => {
-    const hideWhenVisible = { display: loginVisible ? "none" : "" };
-    const showWhenVisible = { display: loginVisible ? "" : "none" };
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+    const showWhenVisible = { display: loginVisible ? '' : 'none' }
 
     return (
       <div>
@@ -164,20 +164,20 @@ const App = () => {
           <button onClick={() => setLoginVisible(false)}>cancel</button>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   const showNotification = (notificationMessage, notificationType) => {
-    console.log("showNotification", notificationMessage, notificationType);
-    setNotification({ message: notificationMessage, type: notificationType });
+    console.log('showNotification', notificationMessage, notificationType)
+    setNotification({ message: notificationMessage, type: notificationType })
     setTimeout(() => {
-      setNotification({ message: "", type: "" });
-    }, 3000);
-  };
+      setNotification({ message: '', type: '' })
+    }, 3000)
+  }
 
   function handleLogout() {
-    setUser(null);
-    window.localStorage.removeItem("loggedBlogAppUser");
+    setUser(null)
+    window.localStorage.removeItem('loggedBlogAppUser')
   }
 
   return (
@@ -207,7 +207,7 @@ const App = () => {
 
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App

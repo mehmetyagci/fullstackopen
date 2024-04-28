@@ -41,8 +41,8 @@ const App = () => {
     console.log('useEffect2 running')
     if (user) {
       blogService.getAll().then((blogs) => {
-        blogs.sort((a, b) => b.likes - a.likes)
-        setBlogs(blogs)
+        const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
+        setBlogs(sortedBlogs)
       })
     }
   }, [user])
@@ -62,7 +62,8 @@ const App = () => {
       .update(id, changedBlog)
       .then((returnedBlog) => {
         console.log('returnedBlog:', returnedBlog)
-        setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)))
+        const updatedBlogs = blogs.map((blog) => (blog.id !== id ? blog : returnedBlog))
+        setBlogs(updatedBlogs.sort((a, b) => b.likes - a.likes))
 
         showNotification(
           `${blog.title} ${blog.url} blog is successfully updated`,
@@ -88,7 +89,8 @@ const App = () => {
     blogService
       .remove(id)
       .then(() => {
-        setBlogs(blogs.filter((blog) => blog.id !== id))
+        const updatedBlogs = blogs.filter((blog) => blog.id !== id)
+        setBlogs(updatedBlogs.sort((a, b) => b.likes - a.likes))
 
         showNotification(
           `${blog.title} ${blog.url} blog is successfully removed`,

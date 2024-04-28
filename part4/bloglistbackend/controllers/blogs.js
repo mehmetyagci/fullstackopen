@@ -14,10 +14,14 @@ blogsRouter.put('/:id', async (request, response) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes ?? 0
+    likes: body.likes ?? 0,
   }
 
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+    new: true,
+  }).populate('user', { username: 1, name: 1 })
+
+  console.log('put->updatedBlog', updatedBlog)
   response.json(updatedBlog)
 })
 
@@ -40,12 +44,19 @@ blogsRouter.post('/', async (request, response) => {
   })
 
   const savedBlog = await blog.save()
+
+  // Update user's blogs array
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
-  response.status(201).json(savedBlog)
+
+  const populatedBlog = await Blog.findById(savedBlog._id).populate('user', { username: 1, name: 1 })
+
+  // Send response with the savedBlog object including user information
+  response.status(201).json(populatedBlog)
 })
 
 blogsRouter.get('/:id', async (request, response) => {
+  console.log('get->request.params.id', request.params.id)
   const blog = await Blog.findById(request.params.id)
   if (blog) {
     response.json(blog)

@@ -140,3 +140,11 @@ Part 5
         If a test does not pass, I'll make sure that the tested functionality works properly in the application
         When I ask for help in the course Discord or Telegram channel or elsewhere I formulate my questions properly, see here how to ask for help
         
+    c Testing Reach apps
+        npm install --save-dev vitest jsdom
+        npm install --save-dev @testing-library/react @testing-library/jest-dom
+        npm install --save-dev eslint-plugin-vitest-globals 
+        npm install --save-dev @testing-library/user-event
+        
+
+
